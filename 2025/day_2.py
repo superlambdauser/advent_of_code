@@ -19,26 +19,45 @@
 
 # What do you get if you add up all of the invalid IDs?
 
+    # PART 2
+# Now, an ID is invalid if it is made only of some sequence of digits repeated at least twice. 
+# So, 12341234 (1234 two times), 123123123 (123 three times), 1212121212 (12 five times), and 1111111 (1 seven times) are all invalid IDs.
+
+# Adding up all the invalid IDs in this example produces 4174379265.
+
+# What do you get if you add up all of the invalid IDs using these new rules?
+
 from day_2_input import ranges
 
 def parse(products:str) -> list[str] :
     return [id_range for id_range in products.split(',')]
 
-def solve(products:str) :
+def solve(products:str, part:int=1) :
     id_ranges = parse(products)
 
     def is_invalid(n: int) -> bool :
-        s = str(n)
-        
-        if len(s) % 2 != 0 :
-            return False
-        
-        half = len(s) // 2
-        return s[half:] == s[:half] 
+        s = str(n) # Work with num as str in order to slice it
+        match part :
+            case 1 :
+                if len(s) % 2 != 0 :
+                    return False # Odd num of digits -> no split into equel parts -> always valid
+                
+                half = len(s) // 2
+                return s[half:] == s[:half] # "1010" -> "10" == "10"
+            case 2 :
+                # Try every possible block size from 1 up to half the length
+                for chunk_size in range(1, (len(s) // 2) + 1) : 
+                    chunk = s[:chunk_size]
+                    if chunk * (len(s) // chunk_size) == s : # Repeat block to fill whole string and compare results
+                        return True 
+                return False
+            case _ :
+                print("Invalid part")
 
     total = 0
+
     for r in id_ranges :
-        start = int(r.split('-')[0])
+        start = int(r.split('-')[0]) 
         end = int(r.split('-')[1])
 
         for x in range(start, end + 1) :
@@ -48,3 +67,4 @@ def solve(products:str) :
     return total
 
 print(solve(ranges))
+print(solve(ranges, part=2))
